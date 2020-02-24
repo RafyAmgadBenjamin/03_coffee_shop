@@ -72,7 +72,7 @@ def get_drink_details(drink_id):
 def post_drink():
     body = request.get_json()
     title = body.get("title", None)
-    recipe = body.get("recipe", None)
+    recipe = json.dumps(body.get("recipe", None))
     if not title or not recipe:
         abort(422)
     try:
