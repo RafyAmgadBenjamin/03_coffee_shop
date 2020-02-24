@@ -130,6 +130,18 @@ def patch_drinks_details(id):
 """
 
 
+@app.route("/drinks/<int:id>", methods=["DELETE"])
+def delete_drinks(id):
+    try:
+        drink = Drink.filter(Drink.id == id).one_or_none()
+        if not drink():
+            abort(400)
+        drink.delete()
+        return {"success": True, "delete": id}
+    except:
+        abort(422)
+
+
 ## Error Handling
 """
 Example error handling for unprocessable entity
