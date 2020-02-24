@@ -58,7 +58,7 @@ def get_drink_details(drink_id):
 
 
 """
-#TODO implement endpoint
+#@TODO implement endpoint
     POST /drinks
         it should create a new row in the drinks table
         it should require the 'post:drinks' permission
@@ -84,7 +84,7 @@ def post_drink():
 
 
 """
-#TODO implement endpoint
+#@TODO implement endpoint
     PATCH /drinks/<id>
         where <id> is the existing model id
         it should respond with a 404 error if <id> is not found
@@ -94,6 +94,28 @@ def post_drink():
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
         or appropriate status code indicating reason for failure
 """
+
+
+@app.route("/drinks/<int:id>", methods=["PATCH"])
+def patch_drinks_details(id):
+    try:
+        body = request.get_json()
+        title = body.get("title", None)
+        recipe = body.get("recipe", None)
+        # If there is no title and no recipe then abort
+        if not title and not recipe:
+            abort(422)
+        drink = Drink.filter(Drink.id == id).one_or_none()
+        if not drink():
+            abort(400)
+        if title:
+            drink.title = title
+        if recipe:
+            drink.recipe = recipe
+        drink.update()
+        return jsonify({"success": True, "drinks": drink.long()})
+    except:
+        abort(422)
 
 
 """
