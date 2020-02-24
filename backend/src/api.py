@@ -68,6 +68,21 @@ def get_drink_details(drink_id):
 """
 
 
+@app.route("/drinks", methods=["POST"])
+def post_drink():
+    body = request.get_json()
+    title = body.get("title", None)
+    recipe = body.get("recipe", None)
+    if not title or not recipe:
+        abort(422)
+    try:
+        drink = Drink(title=title, recipe=recipe)
+        drink.insert()
+        return jsonify({"success": True, "drinks": drink.long()})
+    except:
+        abort(422)
+
+
 """
 #TODO implement endpoint
     PATCH /drinks/<id>
