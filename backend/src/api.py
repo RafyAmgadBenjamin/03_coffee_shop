@@ -16,7 +16,7 @@ CORS(app)
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 """
-# db_drop_and_create_all()
+db_drop_and_create_all()
 
 ## ROUTES
 """
@@ -27,6 +27,15 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 """
+
+
+@app.route("/drinks")
+def get_drinks():
+    all_drinks = Drink.query.all()
+    if len(all_drinks) == 0:
+        abort(404)
+    drinks_short_formatted = [drink.short() for drink in all_drinks]
+    return jsonify({"success": "True", "drinks": drinks_short_formatted})
 
 
 """
@@ -86,6 +95,38 @@ def unprocessable(error):
     return jsonify({"success": False, "error": 422, "message": "unprocessable"}), 422
 
 
+@app.errorhandler(404)
+def not_found(error):
+    return (
+        jsonify({"success": False, "error": 404, "message": "resource not found"}),
+        404,
+    )
+
+
+@app.errorhandler(400)
+def bad_request(error):
+    return (
+        jsonify({"success": False, "error": 400, "message": "bad request"}),
+        400,
+    )
+
+
+@app.errorhandler(405)
+def not_allowed(error):
+    return (
+        jsonify({"success": False, "error": 405, "message": "not allowed"}),
+        405,
+    )
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return (
+        jsonify({"success": False, "error": 500, "message": "internal server error"}),
+        500,
+    )
+
+
 """
 #TODO implement error handlers using the @app.errorhandler(error) decorator
     each error handler should return (with approprate messages):
@@ -107,3 +148,4 @@ def unprocessable(error):
 #TODO implement error handler for AuthError
     error handler should conform to general task above 
 """
+
