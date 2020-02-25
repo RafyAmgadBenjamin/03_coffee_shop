@@ -16,7 +16,7 @@ CORS(app)
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 """
-db_drop_and_create_all()
+# db_drop_and_create_all()
 
 ## ROUTES
 """
@@ -48,8 +48,8 @@ def get_drinks():
 """
 
 
-@app.route("/drinks-details")
-def get_drink_details(drink_id):
+@app.route("/drinks-detail")
+def get_drink_details():
     all_drinks = Drink.query.all()
     if len(all_drinks) == 0:
         abort(404)
@@ -73,8 +73,14 @@ def post_drink():
     body = request.get_json()
     title = body.get("title", None)
     recipe = json.dumps(body.get("recipe", None))
+    # There is missing data so i am going to abort
     if not title or not recipe:
         abort(422)
+
+    drink = Drink.query.filter(Drink.title == title).one_or_none()
+    # There is a drink with this title so I have to abort
+    if drink:
+        abort(409)
     try:
         drink = Drink(title=title, recipe=recipe)
         drink.insert()
@@ -101,12 +107,12 @@ def patch_drinks_details(id):
     try:
         body = request.get_json()
         title = body.get("title", None)
-        recipe = body.get("recipe", None)
+        recipe = json.dumps(body.get("recipe", None))
         # If there is no title and no recipe then abort
         if not title and not recipe:
             abort(422)
-        drink = Drink.filter(Drink.id == id).one_or_none()
-        if not drink():
+        drink = Drink.query.filter(Drink.id == id).one_or_none()
+        if not drink:
             abort(400)
         if title:
             drink.title = title
@@ -133,8 +139,8 @@ def patch_drinks_details(id):
 @app.route("/drinks/<int:id>", methods=["DELETE"])
 def delete_drinks(id):
     try:
-        drink = Drink.filter(Drink.id == id).one_or_none()
-        if not drink():
+        drink = Drink.query.filter(Drink.id == id).one_or_none()
+        if not drink:
             abort(400)
         drink.delete()
         return {"success": True, "delete": id}
@@ -174,6 +180,20 @@ def not_allowed(error):
     return (
         jsonify({"success": False, "error": 405, "message": "not allowed"}),
         405,
+    )
+
+
+@app.errorhandler(409)
+def conflict(error):
+    return (
+        jsonify(
+            {
+                "success": False,
+                "error": 409,
+                "message": "conflicts with some rule already established",
+            }
+        ),
+        409,
     )
 
 
