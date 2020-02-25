@@ -49,7 +49,8 @@ def get_drinks():
 
 
 @app.route("/drinks-detail")
-def get_drink_details():
+@requires_auth("get:drinks-detail")
+def get_drink_details(payload):
     all_drinks = Drink.query.all()
     if len(all_drinks) == 0:
         abort(404)
@@ -69,7 +70,8 @@ def get_drink_details():
 
 
 @app.route("/drinks", methods=["POST"])
-def post_drink():
+@requires_auth("post:drinks")
+def post_drink(payload):
     body = request.get_json()
     title = body.get("title", None)
     recipe = json.dumps(body.get("recipe", None))
@@ -103,7 +105,8 @@ def post_drink():
 
 
 @app.route("/drinks/<int:id>", methods=["PATCH"])
-def patch_drinks_details(id):
+@requires_auth("patch:drinks")
+def patch_drinks_details(payload, id):
     try:
         body = request.get_json()
         title = body.get("title", None)
@@ -116,10 +119,10 @@ def patch_drinks_details(id):
             abort(400)
         if title:
             drink.title = title
-        if recipe:
+        if recipe and recipe != "null":
             drink.recipe = recipe
         drink.update()
-        return jsonify({"success": True, "drinks": drink.long()})
+        return jsonify({"success": True, "drinks": [drink.long()]})
     except:
         abort(422)
 
@@ -137,7 +140,8 @@ def patch_drinks_details(id):
 
 
 @app.route("/drinks/<int:id>", methods=["DELETE"])
-def delete_drinks(id):
+@requires_auth("delete:drinks")
+def delete_drinks(payload, id):
     try:
         drink = Drink.query.filter(Drink.id == id).one_or_none()
         if not drink:
@@ -213,12 +217,20 @@ def forbidden(error):
     )
 
 
-@app.errorhandler(500)
-def internal_server_error(error):
+@app.errorhandler(AuthError)
+def authorize_authenticate_error(error):
     return (
-        jsonify({"success": False, "error": 500, "message": "internal server error"}),
-        500,
+        jsonify({"success": False, "error": error.status_code, "message": error.error}),
+        error.status_code,
     )
+
+
+# @app.errorhandler(500)
+# def internal_server_error(error):
+#     return (
+#         jsonify({"success": False, "error": 500, "message": "internal server error"}),
+#         500,
+#     )
 
 
 """
