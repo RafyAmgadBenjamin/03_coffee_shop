@@ -12,7 +12,7 @@ setup_db(app)
 CORS(app)
 
 """
-#TODO uncomment the following line to initialize the datbase
+#@TODO uncomment the following line to initialize the datbase
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 """
@@ -125,7 +125,7 @@ def patch_drinks_details(id):
 
 
 """
-#TODO implement endpoint
+#@TODO implement endpoint
     DELETE /drinks/<id>
         where <id> is the existing model id
         it should respond with a 404 error if <id> is not found
@@ -197,6 +197,22 @@ def conflict(error):
     )
 
 
+@app.errorhandler(401)
+def unauthorized(error):
+    return (
+        jsonify({"success": False, "error": 401, "message": "not authorized",}),
+        401,
+    )
+
+
+@app.errorhandler(403)
+def forbidden(error):
+    return (
+        jsonify({"success": False, "error": 403, "message": "forbidden",}),
+        403,
+    )
+
+
 @app.errorhandler(500)
 def internal_server_error(error):
     return (
@@ -206,7 +222,7 @@ def internal_server_error(error):
 
 
 """
-#TODO implement error handlers using the @app.errorhandler(error) decorator
+#@TODO implement error handlers using the @app.errorhandler(error) decorator
     each error handler should return (with approprate messages):
              jsonify({
                     "success": False, 
@@ -217,13 +233,13 @@ def internal_server_error(error):
 """
 
 """
-#TODO implement error handler for 404
+#@TODO implement error handler for 404
     error handler should conform to general task above 
 """
 
 
 """
-#TODO implement error handler for AuthError
+#@TODO implement error handler for AuthError
     error handler should conform to general task above 
 """
 
