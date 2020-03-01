@@ -31,6 +31,9 @@ CORS(app)
 
 @app.route("/drinks")
 def get_drinks():
+    """
+    Get the drinks in the menu with short description.
+    """
     all_drinks = Drink.query.all()
     if len(all_drinks) == 0:
         abort(404)
@@ -51,6 +54,9 @@ def get_drinks():
 @app.route("/drinks-detail")
 @requires_auth("get:drinks-detail")
 def get_drink_details(payload):
+    """
+    Get the drinks in the menu with long description.
+    """
     all_drinks = Drink.query.all()
     if len(all_drinks) == 0:
         abort(404)
@@ -72,6 +78,9 @@ def get_drink_details(payload):
 @app.route("/drinks", methods=["POST"])
 @requires_auth("post:drinks")
 def post_drink(payload):
+    """
+    Post a drink.
+    """
     body = request.get_json()
     title = body.get("title", None)
     recipe = json.dumps(body.get("recipe", None))
@@ -107,6 +116,9 @@ def post_drink(payload):
 @app.route("/drinks/<int:id>", methods=["PATCH"])
 @requires_auth("patch:drinks")
 def patch_drinks_details(payload, id):
+    """
+    Update drink details.
+    """
     try:
         body = request.get_json()
         title = body.get("title", None)
@@ -142,6 +154,9 @@ def patch_drinks_details(payload, id):
 @app.route("/drinks/<int:id>", methods=["DELETE"])
 @requires_auth("delete:drinks")
 def delete_drinks(payload, id):
+    """
+    Delete a drink.
+    """
     try:
         drink = Drink.query.filter(Drink.id == id).one_or_none()
         if not drink:
@@ -225,14 +240,6 @@ def authorize_authenticate_error(error):
     )
 
 
-# @app.errorhandler(500)
-# def internal_server_error(error):
-#     return (
-#         jsonify({"success": False, "error": 500, "message": "internal server error"}),
-#         500,
-#     )
-
-
 """
 #@TODO implement error handlers using the @app.errorhandler(error) decorator
     each error handler should return (with approprate messages):
@@ -254,4 +261,3 @@ def authorize_authenticate_error(error):
 #@TODO implement error handler for AuthError
     error handler should conform to general task above 
 """
-
